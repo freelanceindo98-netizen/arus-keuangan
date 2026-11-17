@@ -326,7 +326,7 @@
         const timestamp=sheetSerial(date,todayParts().time);
         // Kolom G sengaja kosong: tidak mencampur ID Update numerik dari Telegram.
         const values=[[timestamp,category,note,amount,monthFor(date),prefs.source||'Aplikasi PWA','']];
-        const result=await api('POST',rangeUrl(`'${formType}'!A:G`)+`?${new URLSearchParams({valueInputOption:'RAW',insertDataOption:'INSERT_ROWS'})}`,{values});
+        const result=await api('POST',rangeUrl(`'${formType}'!A:G`)+`:append?${new URLSearchParams({valueInputOption:'RAW',insertDataOption:'INSERT_ROWS'})}`,{values});
         const insertedRow=extractRowFromUpdate(result.updates?.updatedRange);
         if(insertedRow){try{await formatDateCell(formType,insertedRow);}catch(formatError){toast('Data tersimpan; format tanggal perlu diperiksa di Sheet. '+formatError.message,'error');}}
         toast('Transaksi tersimpan di Google Sheets.','success');
