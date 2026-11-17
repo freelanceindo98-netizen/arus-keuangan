@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f9ff">
+  <meta name="description" content="Catat pemasukan dan pengeluaran dengan cepat, langsung ke Google Sheets milik Anda.">
+  <meta name="color-scheme" content="light">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Arus — Keuangan Pribadi</title>
+  <script defer src="https://accounts.google.com/gsi/client"></script>
+  <script defer src="./config.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="brandmark" aria-hidden="true">↗</div><div><span class="brand-name">arus<span class="brand-dot">.</span></span><span class="brand-caption">Keuangan pribadi</span></div></div>
+      <div class="top-actions"><span class="sync-indicator" id="syncLabel"><span class="status-dot"></span>Belum terhubung</span><button class="icon-btn" id="refreshBtn" aria-label="Muat ulang data" title="Sinkronkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button></div>
+    </header>
+
+    <main>
+      <section id="view-home" class="view active" aria-labelledby="homeHeading">
+        <div class="page-lede"><p class="eyebrow">PANTAU ARUS KASMU</p><h1 id="homeHeading">Uangmu, lebih <span class="gradient-text">terkendali.</span></h1><p>Semua transaksi dalam satu tempat, tersimpan langsung di Google Sheets.</p></div>
+        <div id="connectionBanner" class="connection-banner"><div class="conn-icon">🔒</div><div><strong>Hubungkan akun Google</strong><p>Masuk dan atur spreadsheet untuk melihat data keuanganmu.</p></div><button class="mini-btn" id="connectBannerBtn">Hubungkan</button></div>
+        <div class="periodbar"><div class="period-tabs" aria-label="Pilih periode"><button data-period="today">Hari ini</button><button data-period="week">Minggu</button><button data-period="month" class="chosen">Bulan ini</button><button data-period="custom">Custom</button></div><div id="customPeriod" class="custom-period hidden"><label>Dari <input type="date" id="fromDate"></label><label>Sampai <input type="date" id="toDate"></label></div></div>
+        <section class="balance-panel" aria-label="Ringkasan keuangan"><div class="panel-decoration" aria-hidden="true"></div><div class="panel-head"><span>Saldo bersih periode ini</span><span class="pill soft">● LIVE SHEETS</span></div><strong class="big-balance" id="netTotal">Rp 0</strong><p id="balanceContext">Belum ada transaksi untuk periode ini.</p><div class="balance-metrics"><div><span><i class="metric-icon income">↙</i> Pemasukan</span><strong id="incomeTotal">Rp 0</strong></div><div><span><i class="metric-icon expense">↗</i> Pengeluaran</span><strong id="expenseTotal">Rp 0</strong></div></div></section>
+        <div class="section-title"><h2>Pengeluaran terbesar</h2><span id="categoryCount" class="hint">Per kategori</span></div>
+        <div class="surface-card donut-layout" id="donutCard"><div class="donut" id="donutChart"><div class="donut-center"><small>Total keluar</small><strong id="donutTotal">Rp 0</strong></div></div><div class="category-list" id="categoryLegend"><p class="muted">Belum ada pengeluaran.</p></div></div>
+        <div class="section-title"><h2>Transaksi terbaru</h2><button class="text-link" id="seeAllBtn">Lihat semua →</button></div>
+        <div class="surface-card transaction-list" id="latestList"><div class="empty">Belum ada transaksi.</div></div>
+      </section>
+
+      <section id="view-history" class="view" aria-labelledby="historyHeading">
+        <div class="page-lede compact"><p class="eyebrow">CATATAN KEUANGAN</p><h1 id="historyHeading">Riwayat <span class="gradient-text">transaksi.</span></h1><p>Cari, periksa, dan kelola transaksi yang tersimpan.</p></div>
+        <div class="history-filters surface-card"><label class="field"><span>Cari transaksi</span><input id="searchInput" type="search" placeholder="Keterangan atau kategori..."></label><div class="filter-row"><label class="field"><span>Jenis</span><select id="historyType"><option value="all">Semua jenis</option><option value="Pemasukan">Pemasukan</option><option value="Pengeluaran">Pengeluaran</option></select></label><label class="field"><span>Kategori</span><select id="historyCategory"><option value="all">Semua kategori</option></select></label></div><div class="filter-row"><label class="field"><span>Dari</span><input id="historyFrom" type="date"></label><label class="field"><span>Sampai</span><input id="historyTo" type="date"></label></div><button class="subtle-btn" id="resetHistoryBtn">Hapus filter</button></div>
+        <div class="section-title"><h2>Daftar transaksi</h2><span id="historyCount" class="hint">0 transaksi</span></div><div id="historyList" class="surface-card transaction-list"><div class="empty">Belum ada transaksi.</div></div>
+      </section>
+
+      <section id="view-insights" class="view" aria-labelledby="insightsHeading"><div class="page-lede compact"><p class="eyebrow">ANGKA YANG BERCERITA</p><h1 id="insightsHeading">Kenali pola <span class="gradient-text">uangmu.</span></h1><p>Analisis mengikuti periode yang dipilih pada Beranda.</p></div>
+        <div class="insight-grid"><div class="insight-card"><span>Rata-rata keluar / hari</span><strong id="dailyAverage">Rp 0</strong><small id="averageNote">Dalam periode terpilih</small></div><div class="insight-card"><span>Perubahan pengeluaran</span><strong id="spendingChange">—</strong><small id="changeNote">Dibanding periode sebelumnya</small></div><div class="insight-card"><span>Kategori teratas</span><strong id="topCategory">—</strong><small id="topCategoryNote">Belum ada data</small></div><div class="insight-card"><span>Jumlah transaksi</span><strong id="transactionCount">0</strong><small>Dalam periode terpilih</small></div></div>
+        <div class="section-title"><h2>Tren arus kas</h2><span id="trendGranularity" class="hint">Harian</span></div><div class="surface-card chart-card"><div class="chart-key"><span><i class="key-dot income-key"></i> Pemasukan</span><span><i class="key-dot expense-key"></i> Pengeluaran</span></div><div id="trendChart" class="trend-chart"><div class="empty">Belum ada data untuk grafik.</div></div></div>
+        <div class="section-title"><h2>Perbandingan</h2><span class="hint">Dalam periode terpilih</span></div><div class="surface-card comparison-card" id="comparisonChart"></div><p id="parseWarning" class="small-warning hidden"></p>
+      </section>
+
+      <section id="view-settings" class="view" aria-labelledby="settingsHeading"><div class="page-lede compact"><p class="eyebrow">PREFERENSI & KONEKSI</p><h1 id="settingsHeading">Pengaturan <span class="gradient-text">aplikasi.</span></h1><p>Atur koneksi ke spreadsheet milikmu. Data keuangan tidak disimpan di perangkat.</p></div>
+        <div class="surface-card settings-card"><h2>Google Sheets</h2><p class="muted">Gunakan spreadsheet yang sudah berisi tab Pemasukan dan Pengeluaran.</p><label class="field"><span>Link atau ID spreadsheet</span><input type="text" id="sheetInput" autocomplete="off" spellcheck="false" placeholder="Tempel link Google Sheets di sini"></label><div class="settings-actions"><button class="primary-btn" id="saveSheetBtn">Simpan spreadsheet</button><button class="subtle-btn" id="loginBtn">Hubungkan Google</button></div><p class="helper" id="configHelp">Spreadsheet ID hanya disimpan di browser HP ini.</p><div class="account-status" id="accountStatus">Belum login Google.</div></div>
+        <div class="surface-card settings-card"><h2>Kategori & sumber</h2><p class="muted">Kategori dari data lama otomatis ikut tersedia. Tambahkan pilihan lain dengan pemisah koma.</p><label class="field"><span>Kategori tambahan — pengeluaran</span><textarea id="expenseCategories" rows="3" placeholder="Makanan, Transportasi, Belanja..."></textarea></label><label class="field"><span>Kategori tambahan — pemasukan</span><textarea id="incomeCategories" rows="2" placeholder="Gaji, Usaha, Hadiah..."></textarea></label><label class="field"><span>Sumber untuk transaksi baru (kolom F)</span><input type="text" id="sourceInput" maxlength="60" placeholder="Aplikasi PWA"></label><button class="subtle-btn" id="savePrefsBtn">Simpan preferensi</button></div>
+        <div class="surface-card safety-card"><span class="safety-icon">🛡️</span><div><strong>Data lama tetap aman</strong><p>Tambah transaksi menambahkan baris. Edit hanya mengubah kolom transaksi terpilih. Hapus mengosongkan baris yang dikonfirmasi tanpa menggeser baris lain. Sebelum edit/hapus, aplikasi mengecek apakah baris masih sama.</p></div></div><button class="logout-btn" id="disconnectBtn">Putuskan koneksi akun Google</button>
+      </section>
+    </main>
+
+    <button class="fab" id="addBtn"><span class="fab-plus">+</span><span>Tambah Transaksi</span></button>
+    <nav class="bottom-nav" aria-label="Navigasi utama"><button data-view="home" class="selected"><span class="nav-icon">⌂</span><span>Beranda</span></button><button data-view="history"><span class="nav-icon">≡</span><span>Riwayat</span></button><button data-view="insights"><span class="nav-icon">▥</span><span>Analisis</span></button><button data-view="settings"><span class="nav-icon">⚙</span><span>Pengaturan</span></button></nav>
+  </div>
+
+  <div class="modal-overlay hidden" id="transactionOverlay" role="presentation"><section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modalHeading"><div class="modal-handle"></div><div class="modal-header"><div><p class="eyebrow">INPUT CEPAT</p><h2 id="modalHeading">Tambah transaksi</h2></div><button id="closeModalBtn" class="icon-btn close-btn" aria-label="Tutup">×</button></div><form id="transactionForm" novalidate><div class="type-switch"><button type="button" class="active expense-mode" data-txtype="Pengeluaran">↗ Pengeluaran</button><button type="button" data-txtype="Pemasukan">↙ Pemasukan</button></div><label class="field amount-field"><span>Nominal (Rp) <em>*</em></span><div class="amount-input"><strong>Rp</strong><input id="amountInput" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></label><label class="field"><span>Kategori <em>*</em></span><input id="categoryInput" type="text" list="categorySuggestions" maxlength="80" placeholder="Pilih atau ketik kategori" required><datalist id="categorySuggestions"></datalist></label><div class="filter-row"><label class="field"><span>Tanggal</span><input id="dateInput" type="date" required></label><label class="field"><span>Keterangan (opsional)</span><input id="noteInput" type="text" maxlength="300" placeholder="Mis. makan siang"></label></div><p class="form-note" id="formMessage"></p><button type="submit" class="primary-btn submit-btn" id="submitTransaction">Simpan transaksi</button></form></section></div>
+  <div class="modal-overlay hidden" id="confirmOverlay" role="presentation"><section class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText"><div class="danger-icon">!</div><h2 id="confirmTitle">Hapus transaksi?</h2><p id="confirmText">Transaksi ini akan dikosongkan dari Google Sheets. Tindakan ini tidak dapat dibatalkan di aplikasi.</p><div class="confirm-actions"><button id="cancelDeleteBtn" class="subtle-btn">Batal</button><button id="approveDeleteBtn" class="danger-btn">Ya, hapus</button></div></section></div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+</body>
+</html>
