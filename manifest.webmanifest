@@ -1,15 +1,27 @@
 {
+  "id": "/arus-keuangan/",
   "name": "Arus — Keuangan Pribadi",
   "short_name": "Arus",
-  "description": "Catat transaksi langsung di Google Sheets",
+  "description": "Catat pemasukan dan pengeluaran langsung di Google Sheets",
   "lang": "id",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/arus-keuangan/",
+  "scope": "/arus-keuangan/",
   "display": "standalone",
   "background_color": "#f7f9ff",
   "theme_color": "#f7f9ff",
+  "prefer_related_applications": false,
   "icons": [
-    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "/arus-keuangan/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/arus-keuangan/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
